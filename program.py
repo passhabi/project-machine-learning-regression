@@ -24,57 +24,82 @@ df = df.fillna(0)
 # 3. looking for outlier data points (high leverage points):
 n = len(df)  # number of data point before deleting outliers
 print(n, 'data point are in data frame')
+
 # removing rank outlier:
 # ----------------------------------------------
 threshold = 7
 z_scores = np.abs(stats.zscore(df['rank']))
-# col = np.where(z_scores > threshold, 'r', 'b')
-# plt.scatter(df['Favs'], df['rank'], c=col, marker='.')
-# plt.show()
+col = np.where(z_scores > threshold, 'r', 'b')
+plt.scatter(df['Favs'], df['rank'], c=col, marker='.')
+plt.show()
 
 # deleting outliers form data frame:
 indices = np.where(z_scores > threshold)[0]  # get the outlier corresponding indices
-df = df.drop(index=indices)  # drop the outliers
+# df = df.drop(index=indices)  # drop the outliers
+df.at[indices, 'rank'] = 1e2  # impute outliers to the max (1e2) of the none outliers.
 
 # removing Favs outlier:
 # ----------------------------------------------
 x = 'Favs'
-# plt.scatter(df[x], df['rank'], marker='.')
-# plt.show()
+plt.scatter(df[x], df['rank'], marker='.')
+# plt.xlim([0, 100])
+plt.show()
 print(len(df[df[x] > 70]), 'data points will be deleted from data frame due to Favs outlier removing.')
-df = df[df[x] < 70]
+# df = df[df[x] < 70]
+
+indices = df[df[x] > 70].index
+# max is : 70
+df.at[indices, x] = 70  # impute outliers to the max 70 of the none outliers.
 
 # removing RTs outlier:
 # ----------------------------------------------
 x = 'RTs'
-# plt.scatter(df[x], df['rank'], marker='.')
-# plt.show()
+plt.scatter(df[x], df['rank'], marker='.')
+# plt.xlim([100, 5000])
+plt.show()
 print(len(df[df[x] > 20000]), 'data points deleted from data frame due to RTs outlier removing.')
-df = df[df[x] < 20000]
+# df = df[df[x] < 20000]
+
+indices = df[df[x] > 20000].index
+# max is : 3000
+df.at[indices, x] = 3000  # impute outliers to the max 3000 of the none outliers.
 
 # removing Followers outlier:
 # ----------------------------------------------
 x = 'Followers'
-# plt.scatter(df[x], df['rank'], marker='.')
-# plt.show()
+plt.scatter(df[x], df['rank'], marker='.')
+# plt.xlim([100000, 500000])
+plt.show()
 print(len(df[df[x] > 300000]), 'data points deleted from data frame due to Followers outlier removing.')
-df = df[df[x] < 300000]
+# df = df[df[x] < 300000]
+
+indices = df[df[x] > 300000].index
+# max is : 300000
+df.at[indices, x] = 300000  # impute outliers to the max 300000 of the none outliers.
 
 # removing Following outlier:
 # ----------------------------------------------
 x = 'Following'
-# plt.scatter(df[x], df['rank'], marker='.')
-# plt.show()
-print(len(df[df[x] > 160000]), 'data points deleted from data frame due to Following outlier removing.')
-df = df[df[x] < 160000]
+plt.scatter(df[x], df['rank'], marker='.')
+plt.show()
+print(len(df[df[x] > 65000]), 'data points deleted from data frame due to Following outlier removing.')
+# df = df[df[x] < 75000]
+
+indices = df[df[x] > 65000].index
+# max is around: 65000
+df.at[indices, x] = 65000  # impute outliers to the max 65000 of the none outliers.
 
 # removing Listed outlier:
 # ----------------------------------------------
 x = 'Listed'
-# plt.scatter(df[x], df['rank'], marker='.')
-# plt.show()
-print(len(df[df[x] > 15000]), 'data points deleted from data frame due to Listed outlier removing.')
-df = df[df[x] < 15000]
+plt.scatter(df[x], df['rank'], marker='.')
+plt.show()
+print(len(df[df[x] > 12500]), 'data points deleted from data frame due to Listed outlier removing.')
+# df = df[df[x] < 12500]
+
+indices = df[df[x] > 12500].index
+# max is around: 12500
+df.at[indices, x] = 12500  # impute outliers to the max 12500 of the none outliers.
 
 # removing likes outlier:
 # ----------------------------------------------
@@ -82,16 +107,19 @@ x = 'likes'
 plt.scatter(df[x], df['rank'], marker='.')
 plt.show()
 print(len(df[df[x] > 80000]), 'data points deleted from data frame due to likes outlier removing.')
-df = df[df[x] < 80000]
+# df = df[df[x] < 80000]
+
+# there is a diff between outliers, trying in to keep the range (distance):
+high_indices = df[df[x] > 70000].index
+
+indices = df[df[x] > 60000].index
+# max is around: 35000
+df.at[indices, x] = 40000  # impute lower outliers to the max 40000 of the none outliers.
+df.at[high_indices, x] = 45000  # impute higher outliers to the max 45000 of the none outliers.
 
 # removing tweets outlier:
 # ----------------------------------------------
-outlier_selection = lr.OutlierDetectHelper()
-outlier_selection.outlier_selection_by_linear_model(df, 'tweets', 'rank')
-# outlier_selection.plot_excluded_outliers(k=1)
-index_to_delete = outlier_selection.get_k_outlier(1)[0]
-df = df.drop(index=index_to_delete)
-print('1 data points deleted from data frame due to tweets outlier removing.')
+# no outlier
 
 # removing reply outlier:
 # ----------------------------------------------
@@ -104,7 +132,8 @@ plt.show()
 # ----------------------------------------------
 # no outlier
 
-print('total deleted data point:', n - len(df))
+
+
 
 # what features we want to include in our model:
 features_list = ['RTs', 'Followers', 'Following',
