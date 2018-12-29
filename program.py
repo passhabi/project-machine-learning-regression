@@ -142,12 +142,6 @@ print('total deleted data point:', n - len(df))
 features_list = ['Favs', 'RTs', 'Followers', 'Following',
                  'Listed', 'likes', 'tweets', 'reply', '# of Tweet content']
 
-# 3. check correlation between inputs:
-# for col in features_list:
-#     plt.scatter(df[col], df['rank'], marker='.')
-#     plt.xlabel(col)
-#     plt.show()
-
 
 # B) 1.Which input, as feature gives the best simple model regression?
 # split data frame to test and training set:

@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error as mse_error
 from sklearn.model_selection import train_test_split
 
 
-def preprocessing():
+def pre_processing():
     # importing the data set, at same time we do same for StudentTest:
     dtype_dict = {'Tweet Id': int, 'User Name': str, 'Favs': int, 'RTs': int, 'Followers': int,
                   'Following': int, 'Listed': int, 'likes': int, 'tweets': int, 'reply': int,
@@ -88,7 +88,7 @@ def preprocessing():
     # max is around: 65000
     # df.at[indices, x] = 65000  # impute outliers to the max 65000 of the none outliers.
 
-    # removing Listed outlier:
+    # Listed:
     # ----------------------------------------------
     x = 'Listed'
     # plt.scatter(df[x], df['rank'], marker='.')
@@ -100,7 +100,7 @@ def preprocessing():
     # max is around: 12500
     # df.at[indices, x] = 12500  # impute outliers to the max 12500 of the none outliers.
 
-    # removing likes outlier:
+    # likes:
     # ----------------------------------------------
     x = 'likes'
     # plt.scatter(df[x], df['rank'], marker='.')
@@ -116,31 +116,78 @@ def preprocessing():
     df.at[indices, x] = 40000  # impute lower outliers to the max 40000 of the none outliers.
     df.at[high_indices, x] = 45000  # impute higher outliers to the max 45000 of the none outliers.
 
-    # removing tweets outlier:
+    # tweets :
     # ----------------------------------------------
     # no outlier
 
-    # removing reply outlier:
+    # reply :
     # ----------------------------------------------
     # x = 'reply'
     # plt.scatter(df[x], df['rank'], marker='.')
     # plt.show()
     # not sure to delete any
 
-    # removing reply outlier:
+    # reply:
     # ----------------------------------------------
     # no outlier
 
     print('total deleted data point:', n - len(df))
 
+    # change the scale of features and add our own features:
+    df['Following'] = df['Following'].apply(lambda x: np.log(x))
+    df['Followers'] = df['Followers'].apply(lambda x: np.log(x))
+    df['listed'] = df['Listed'].apply(lambda x: np.log(x))
 
-    # Adding our own features:
     df['Followers_sub_Following'] = df['Followers'] - df['Following']
-    df['tweets_reply'] = df['tweets'] * df['reply']
-    df['log_likes'] = df['likes'].apply(lambda x: np.log(x))
+    df['log_tweets_reply'] = np.log(df['tweets'] * df['reply'])
+    df['log_likes'] = df['likes'].apply(lambda x: np.log2(x))
+
+    # and same for test data set:
+    StudentTest['Following'] = StudentTest['Following'].apply(lambda x: np.log(x))
+    StudentTest['Followers'] = StudentTest['Followers'].apply(lambda x: np.log(x))
+    StudentTest['listed'] = StudentTest['Listed'].apply(lambda x: np.log(x))
 
     StudentTest['Followers_sub_Following'] = StudentTest['Followers'] - StudentTest['Following']
-    StudentTest['tweets_reply'] = StudentTest['tweets'] * StudentTest['reply']
-    StudentTest['log_likes'] = StudentTest['likes'].apply(lambda x: np.log(x))
+    StudentTest['log_tweets_reply'] = np.log(StudentTest['tweets'] * StudentTest['reply'])
+    StudentTest['log_likes'] = StudentTest['likes'].apply(lambda x: np.log2(x))
 
     return df, StudentTest
+
+
+def check_correlation(df):
+    for column_str in df.columns:
+        plt.scatter(df[column_str], df['rank'], marker='.')
+        plt.xlabel(column_str)
+        plt.ylabel('rank')
+        plt.show()
+
+    corrolations = df[df.columns[0:]].corr()
+
+    cols = corrolations.sort_values(by='rank', axis=1).columns.tolist()
+
+    corr = corrolations.sort_values(by='rank', axis=0)[cols]
+    corr = df[df.columns[0:]].corr()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cax = ax.matshow(corr, cmap='coolwarm', vmin=-1, vmax=1)
+    fig.colorbar(cax)
+    ticks = np.arange(0, len(corr.columns), 1)
+    ax.set_xticks(ticks)
+    plt.xticks(rotation=90)
+    ax.set_yticks(ticks)
+    ax.set_xticklabels(corr.columns)
+    ax.set_yticklabels(corr.columns)
+    plt.show()
+
+    # Drop Highly Correlated Features:
+    #   Create correlation matrix
+    corr_matrix = df.corr().abs()
+
+    #   Select upper triangle of correlation matrix
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+
+    #   Find index of feature columns with correlation greater than 0.95
+    to_drop = [column for column in upper.columns if any(upper[column] > 0.90)]
+
+    df = df.drop(df.columns[to_drop], axis=1)
+    return
