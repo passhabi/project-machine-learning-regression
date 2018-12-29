@@ -16,4 +16,4 @@ def predict_outcome(feature_matrix, weights):
 
     weights = weights.reshape(-1, 1)
     predictions = np.dot(feature_matrix, weights)
-    return predictions.reshape(1, -1)  # reshape vector to 1×N (default shape).
+    return predictions.reshape(1, -1) [0] # reshape vector to 1×N (default shape).

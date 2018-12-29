@@ -25,7 +25,7 @@ def feature_derivative_ridge(errors, feature, weight, l2_penalty: float, feature
     #   the derivative is just twice the sum of the errors (without the 2λw[0] term).
     # If feature_is_constant is True, derivative is twice the dot product of errors and feature
     errors = np.reshape(errors, [-1, 1])  # need error to be a n×1 vector
-    derivative = 2 * np.dot(feature, errors)  # 1×n dot product n×1 gives us a scalar
+    derivative = np.float64(2 * np.dot(feature, errors))  # 1×n dot product n×1 gives us a scalar
     # simple form of code above:
     # derivative = feature * errors
     # derivative = 2 * sum(derivative)
@@ -68,11 +68,11 @@ print(np.sum(errors) * 2.)
 def ridge_regression_gradient_descent(feature_matrix, output, initial_weights: List[float], step_size,
                                       l2_penalty: float,
                                       max_iterations: int = 100):
-    if type(initial_weights[0]) != float:
-        # make sure auto casting, (float to int) doesn't happen at updating weights[i].
-        raise Exception('initial_weights setted with an int number instead of a float')
+    # if type(initial_weights[0]) != float:
+    #     # make sure auto casting, (float to int) doesn't happen at updating weights[i].
+    #     raise Exception('initial_weights setted with an int number instead of a float')
 
-    weights = np.array(initial_weights)  # make sure it's a numpy array
+    weights = np.array(initial_weights, dtype=np.float64)  # make sure it's a numpy array
     while 0 < max_iterations:  # while not reached maximum number of iterations:
         # compute the predictions using your predict_output() function
         predictions = predict_outcome(feature_matrix, weights)

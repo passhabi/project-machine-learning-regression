@@ -5,9 +5,12 @@ from learnt.regression.polynomial_dataframe import polynomial_dataframe
 from learnt.regression.k_fold_cross_validation import k_fold_cross_validation
 from learnt.regression.fit_poly_model import fit_poly_model
 from learnt.regression.least_square_regression import regression_gradient_descent
+from learnt.regression.least_square_regression import simple_linear_regression
 from learnt.regression.ridge import ridge_regression_gradient_descent
 from learnt.regression.normalize_features import normalize_features
 from learnt.regression.lasso import lasso_cyclical_coordinate_descent
 from learnt.regression.lasso import get_included_features_in_model
 from learnt.regression.knn import predict_output as knn_predict_output
 from learnt.regression.OutlierDetectHelper import OutlierDetectHelper
+from learnt.regression.forward_backward_wise import forward_selected
+from learnt.regression.forward_backward_wise import backward_selected

@@ -2,6 +2,25 @@ import numpy as np
 from learnt.regression import predict_outcome
 
 
+def simple_linear_regression(input_feature, output):
+    """
+    :param input_feature: vector (numpy array) feature sqft_living
+    :param output: vector of price
+    :return: W0 , W1
+    """
+    n = output.size
+    sum_y = output.sum()
+    sum_x = input_feature.sum()
+    sum_xy = (output * input_feature).sum()
+    sum_x_squared = (input_feature ** 2).sum()
+
+    numerator = sum_xy - (sum_y * sum_x / n)
+    denominator = sum_x_squared - (sum_x * sum_x / n)
+    slope = numerator / denominator
+    intercept = (sum_y / n) - slope * (sum_x / n)
+    return intercept, slope
+
+
 def regression_gradient_descent(feature_matrix, output, initial_weights, step_size, tolerance):
     """
     **Gradient descent Algorithm**
